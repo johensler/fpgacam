@@ -1,0 +1,2 @@
+ila_cam.vhd,vhdl,xil_defaultlib,../../../../final_project_v1.gen/sources_1/ip/ila_cam/sim/ila_cam.vhd,incdir="../../../../final_project_v1.gen/sources_1/ip/ila_cam/hdl/verilog"
+glbl.v,Verilog,xil_defaultlib,glbl.v

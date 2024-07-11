@@ -1,0 +1,5 @@
+xpm_cdc.sv,systemverilog,xpm,../../../../../../../../../Xilinx/Vivado/2023.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv,incdir="../../../../final_project_v1.gen/sources_1/ip/ila_cam/hdl/verilog"
+xpm_memory.sv,systemverilog,xpm,../../../../../../../../../Xilinx/Vivado/2023.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv,incdir="../../../../final_project_v1.gen/sources_1/ip/ila_cam/hdl/verilog"
+xpm_VCOMP.vhd,vhdl,xpm,../../../../../../../../../Xilinx/Vivado/2023.2/data/ip/xpm/xpm_VCOMP.vhd,incdir="../../../../final_project_v1.gen/sources_1/ip/ila_cam/hdl/verilog"
+ila_cam.vhd,vhdl,xil_defaultlib,../../../../final_project_v1.gen/sources_1/ip/ila_cam/sim/ila_cam.vhd,incdir="../../../../final_project_v1.gen/sources_1/ip/ila_cam/hdl/verilog"
+glbl.v,Verilog,xil_defaultlib,glbl.v

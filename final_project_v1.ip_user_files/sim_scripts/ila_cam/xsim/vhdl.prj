@@ -1,0 +1,5 @@
+vhdl xil_defaultlib  \
+"../../../../final_project_v1.gen/sources_1/ip/ila_cam/sim/ila_cam.vhd" \
+
+# Do not sort compile order
+nosort
