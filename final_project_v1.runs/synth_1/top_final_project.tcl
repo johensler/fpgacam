@@ -91,9 +91,13 @@ set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
 read_vhdl -library xil_defaultlib {
+  C:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.srcs/sources_1/new/dual_ram.vhd
+  C:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.srcs/sources_1/imports/new/hsynch.vhd
   C:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.srcs/sources_1/new/i2c_controler.vhd
+  C:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.srcs/sources_1/imports/new/vsynch.vhd
   C:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.srcs/sources_1/new/top_final_project.vhd
 }
+read_vhdl -vhdl2008 -library xil_defaultlib C:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.srcs/sources_1/new/vga_buffer.vhd
 read_ip -quiet C:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.srcs/sources_1/ip/clk_wiz_0/clk_wiz_0.xci
 set_property used_in_implementation false [get_files -all c:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc]
 set_property used_in_implementation false [get_files -all c:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc]

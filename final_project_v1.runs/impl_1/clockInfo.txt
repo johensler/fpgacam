@@ -1,6 +1,6 @@
 -------------------------------------
 | Tool Version : Vivado v.2023.2
-| Date         : Wed Jul 10 12:17:09 2024
+| Date         : Mon Jul 15 16:58:17 2024
 | Host         : Orcadron
 | Design       : design_1
 | Device       : xc7a35t-cpg236-1--

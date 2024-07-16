@@ -73,7 +73,6 @@ OPTRACE "ila_cam_synth_1" START { ROLLUP_AUTO }
 set_param tcl.collectionResultDisplayLimit 0
 set_param chipscope.maxJobs 2
 set_param xicom.use_bs_reader 1
-set_msg_config -id {Common 17-41} -limit 10000000
 set_param project.vivado.isBlockSynthRun true
 set_msg_config -msgmgr_mode ooc_run
 OPTRACE "Creating in-memory project" START { }
@@ -93,7 +92,7 @@ set_property ip_output_repo c:/Users/hensl/OneDrive/Dokumente/RES/final_project_
 set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
-read_ip -quiet c:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.srcs/sources_1/ip/ila_cam/ila_cam.xci
+read_ip -quiet C:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.srcs/sources_1/ip/ila_cam/ila_cam.xci
 set_property used_in_synthesis false [get_files -all c:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.gen/sources_1/ip/ila_cam/ila_v6_2/constraints/ila_impl.xdc]
 set_property used_in_implementation false [get_files -all c:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.gen/sources_1/ip/ila_cam/ila_v6_2/constraints/ila_impl.xdc]
 set_property used_in_implementation false [get_files -all c:/Users/hensl/OneDrive/Dokumente/RES/final_project_v1/final_project_v1.gen/sources_1/ip/ila_cam/ila_v6_2/constraints/ila.xdc]

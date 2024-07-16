@@ -36,7 +36,7 @@
                                 "portIndex": 0,
                                 "nets": [
                                     {
-                                        "name": "cam_pclk_i_IBUF",
+                                        "name": "cam_pclk_i_IBUF_BUFG",
                                         "isBus": false
                                     }
                                 ]
@@ -80,72 +80,36 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 1,
-                                "portIndex": 3,
-                                "nets": [
-                                    {
-                                        "name": "vga_blue_o_OBUF",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "vga_blue_o_OBUF[3]"
-                                            },
-                                            {
-                                                "name": "vga_blue_o_OBUF[2]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe3",
-                                "id": 4,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 2,
-                                "rightIndex": 3,
-                                "portIndex": 3,
-                                "nets": [
-                                    {
-                                        "name": "vga_red_o_OBUF",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "vga_red_o_OBUF[3]"
-                                            },
-                                            {
-                                                "name": "vga_red_o_OBUF[2]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe3",
-                                "id": 5,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 4,
                                 "rightIndex": 7,
                                 "portIndex": 3,
                                 "nets": [
                                     {
-                                        "name": "vga_green_o_OBUF",
+                                        "name": "cam_d_i_IBUF",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "vga_green_o_OBUF[3]"
+                                                "name": "cam_d_i_IBUF[7]"
                                             },
                                             {
-                                                "name": "vga_green_o_OBUF[2]"
+                                                "name": "cam_d_i_IBUF[6]"
                                             },
                                             {
-                                                "name": "vga_green_o_OBUF[1]"
+                                                "name": "cam_d_i_IBUF[5]"
                                             },
                                             {
-                                                "name": "vga_green_o_OBUF[0]"
+                                                "name": "cam_d_i_IBUF[4]"
+                                            },
+                                            {
+                                                "name": "cam_d_i_IBUF[3]"
+                                            },
+                                            {
+                                                "name": "cam_d_i_IBUF[2]"
+                                            },
+                                            {
+                                                "name": "cam_d_i_IBUF[1]"
+                                            },
+                                            {
+                                                "name": "cam_d_i_IBUF[0]"
                                             }
                                         ]
                                     }
@@ -153,7 +117,7 @@
                             },
                             {
                                 "name": "probe4",
-                                "id": 6,
+                                "id": 4,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,

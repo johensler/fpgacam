@@ -14,7 +14,7 @@ ARCHITECTURE behavior OF tb_vga_buffer IS
             rst_i : IN STD_LOGIC;
             cam_href_i : IN STD_LOGIC;
             cam_d_i : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-            vga_d_o : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+            vga_d_o : OUT STD_LOGIC_VECTOR(11 DOWNTO 0)
         );
     END COMPONENT;
 
@@ -23,7 +23,7 @@ ARCHITECTURE behavior OF tb_vga_buffer IS
     SIGNAL rst_i : STD_LOGIC := '0';
     SIGNAL cam_href_i : STD_LOGIC := '0';
     SIGNAL cam_d_i : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
-    SIGNAL vga_d_o : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL vga_d_o : STD_LOGIC_VECTOR(11 DOWNTO 0);
 
     -- Clock period definitions
     CONSTANT clk_period : TIME := 40 ns;

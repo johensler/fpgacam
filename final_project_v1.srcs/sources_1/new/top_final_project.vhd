@@ -39,15 +39,13 @@ ENTITY top_final_project IS
         cam_siod_io : INOUT STD_LOGIC;
         vga_hsync : OUT STD_LOGIC;
         vga_vsync : OUT STD_LOGIC;
-        vga_red_o : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-        vga_green_o : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-        vga_blue_o : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+        vga_o : OUT STD_LOGIC_VECTOR(11 DOWNTO 0);
         sccb_ack_err_o : OUT STD_LOGIC;
         sccb_ack_error_latch_o : OUT STD_LOGIC;
         btnU_n_i : IN STD_LOGIC; -- button up!
         debug_o : OUT STD_LOGIC;
         start_fsm_debug_o : OUT STD_LOGIC;
-        sw : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        sw_i : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         dataSelectionControlLed_o : OUT STD_LOGIC
     );
 END top_final_project;
@@ -96,6 +94,18 @@ ARCHITECTURE Behavioral OF top_final_project IS
         );
     END COMPONENT;
 
+    COMPONENT vga_buffer IS
+        PORT (
+            cam_pclk_i : IN STD_LOGIC;
+            rst_i : IN STD_LOGIC;
+            cam_href_i : IN STD_LOGIC;
+            cam_d_i : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+            vga_d_o : OUT STD_LOGIC_VECTOR(11 DOWNTO 0);
+            Hsync_o : OUT STD_LOGIC;
+            Vsync_o : OUT STD_LOGIC
+        );
+    END COMPONENT;
+
 BEGIN
     ----------------------------------------------------------------------------
     -- STATIC SIGNALS INIT
@@ -108,13 +118,6 @@ BEGIN
     -- is hardcoded to zero, to pull down lines use siox_control_r signals
     sioc_i_r <= '0';
     siod_i_r <= '0';
-    -- connect vga directly throug fpga
-    vga_hsync <= cam_href_i;
-    vga_vsync <= cam_vsync_i;
-    vga_green_o <= cam_d_i(7 DOWNTO 4);
-    vga_red_o <= cam_d_i(3 DOWNTO 2) & "00";
-    vga_blue_o <= cam_d_i(1 DOWNTO 0) & "00";
-
     ----------------------------------------------------------------------------
     -- IO BUFFER 
     ----------------------------------------------------------------------------
@@ -162,10 +165,10 @@ BEGIN
     -- make sure last led (num 15) wont light up, otherwise communication went 
     -- wrong
     ----------------------------------------------------------------------------
-    dataSelection_comb_proc : PROCESS (sw)
+    dataSelection_comb_proc : PROCESS (sw_i)
     BEGIN
 
-        CASE(sw) IS
+        CASE(sw_i) IS
 
             WHEN "0000000000000000" =>
             sccb_data_r <= sccb_regConfig_r & sccb_regAddress_r;
@@ -212,6 +215,7 @@ BEGIN
             cam_reset_o <= '1';
         END IF;
     END PROCESS;
+
     ----------------------------------------------------------------------------
     -- INTEGRATGED LOGIC ANALYZER 
     ----------------------------------------------------------------------------
@@ -224,4 +228,18 @@ BEGIN
         probe3 => cam_d_i,
         probe4 => (0 => rst_n_i)
     );
+
+    ----------------------------------------------------------------------------
+    -- VGA Framebuffer, stores input data from camera in BRAM and outputs VGA to display
+    ----------------------------------------------------------------------------
+    vga_buffer_inst : ENTITY work.vga_buffer
+        PORT MAP(
+            cam_pclk_i => cam_pclk_i,
+            rst_i => rst_n_i,
+            cam_href_i => cam_href_i,
+            cam_d_i => cam_d_i,
+            vga_d_o => vga_o,
+            Hsync_o => vga_hsync,
+            Vsync_o => vga_vsync
+        );
 END Behavioral;
