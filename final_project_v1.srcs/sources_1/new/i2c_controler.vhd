@@ -66,9 +66,7 @@ ARCHITECTURE Behavioral OF i2c_controler IS
     SIGNAL clk_400KHz : STD_LOGIC;
     --address of target peripheral: 42 for read 43 for write     
     SIGNAL addr_wr_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01000010";
-
     SIGNAL ack_error_r : STD_LOGIC; --flag if improper acknowledge from slave
-
     SIGNAL prescale_var_r : INTEGER RANGE 0 TO 63 := 0;
 
     SIGNAL byte_index_r : INTEGER RANGE 0 TO 15 := 0;
@@ -80,11 +78,6 @@ ARCHITECTURE Behavioral OF i2c_controler IS
     SIGNAL sda_o : STD_LOGIC;
 
     SIGNAL start_write_r : STD_LOGIC;
-    SIGNAL countDebounce_var_r : INTEGER RANGE 0 TO 1600000 := 0;
-    SIGNAL btnUdebounced_n_r : STD_LOGIC;
-    SIGNAL start_counting_debounced : STD_LOGIC;
-
-    SIGNAL btnU_n_signal : STD_LOGIC;
 
 BEGIN
 
@@ -339,38 +332,13 @@ BEGIN
         END IF;
     END PROCESS i2c_fsm;
 
+    -- connect signals w/ inputs/ outputs
     sda_o_o <= sda_o;
     scl_o_o <= scl_o;
     ack_error_o <= ack_error_r;
+    start_write_r <= btnU_n_i;
 
-    -- BEGIN ------ debug -> generate repeated start signal for i2c tb ---------
-    start_write_r <= btnUdebounced_n_r;
-    start_fsm_debug_o <= btnUdebounced_n_r;
-
-    btnU_n_signal <= '1'; -- change back to button for single operation
-    PROCESS (clk_400KHz, rst_n_i)
-    BEGIN
-        IF (rst_n_i = '1') THEN
-            countDebounce_var_r <= 0;
-            btnUdebounced_n_r <= '0';
-            start_counting_debounced <= '0';
-        ELSIF rising_edge(clk_400KHz) THEN
-            --IF (btnU_n_signal = '1' AND start_counting_debounced = '0') THEN
-            IF (btnU_n_i = '1' AND start_counting_debounced = '0') THEN
-                btnUdebounced_n_r <= '1';
-                start_counting_debounced <= '1';
-            ELSIF (start_counting_debounced = '1') THEN
-                btnUdebounced_n_r <= '0';
-                countDebounce_var_r <= countDebounce_var_r + 1;
-                IF (countDebounce_var_r = 1600000) THEN
-                    countDebounce_var_r <= 0;
-                    start_counting_debounced <= '0';
-                END IF;
-            END IF;
-        END IF;
-    END PROCESS;
-    -- END   ------ debug -> generate repeated start signal for i2c tb ---------
-
+    -- latch ack error to light up led
     ack_flag_proc : PROCESS (clk_400KHz, rst_n_i)
     BEGIN
         IF (rst_n_i = '1') THEN
