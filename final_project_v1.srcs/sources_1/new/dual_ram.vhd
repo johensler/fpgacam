@@ -16,7 +16,7 @@ ENTITY dual_port_ram IS
 END dual_port_ram;
 
 ARCHITECTURE Behavioral OF dual_port_ram IS
-    TYPE ram_type IS ARRAY (153599 DOWNTO 0) OF STD_LOGIC_VECTOR(7 DOWNTO 0); --320x480 = 153600 
+    TYPE ram_type IS ARRAY (153600 DOWNTO 0) OF STD_LOGIC_VECTOR(7 DOWNTO 0); --320x480 = 153600, last byte use as buffer, not written in
     SIGNAL RAM : ram_type := (OTHERS => (OTHERS => '0'));
 BEGIN
 

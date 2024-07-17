@@ -60,18 +60,37 @@ ARCHITECTURE Behavioral OF top_final_project IS
     SIGNAL siod_control_r : STD_LOGIC := '1'; -- inital high -> input
 
     -- config data PAY ATTENTION: in reversed order!!!
-    -- For GRB 4:2:2 we have to set: COM7[2]=1, COM7[0]=0, COM15[5]=x and COM15[4]=0
-    -- data 0: [COM7] Register h12, config data: select RGB format
+    -- COM7 Reset (Should also be done on reset, but to be sure)
     SIGNAL sccb_regAddress_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01001000"; -- reversed order!!!
-    SIGNAL sccb_regConfig_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000100"; -- reversed order!!!
+    SIGNAL sccb_regConfig_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000001"; -- reversed order!!!
 
-    -- data 1: [COM15] Register h40, config data: select normal RGB format (GBR 4:2:2)
-    SIGNAL sccb_regAddress1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000010"; -- reversed order!!!
-    SIGNAL sccb_regConfig1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000000"; -- reversed order!!!
+    -- COM7 Set RGB Output Format
+    SIGNAL sccb_regAddress1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01001000"; -- reversed order!!!
+    SIGNAL sccb_regConfig1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00100000"; -- reversed order!!!
+
+    -- RGB444 Set to disable (needed for RGB565 activation)
+    SIGNAL sccb_regAddress2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00110001"; -- reversed order!!!
+    SIGNAL sccb_regConfig2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000000"; -- reversed order!!!
+
+    -- COM15 Set RGB 565 format 
+    SIGNAL sccb_regAddress3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000010"; -- reversed order!!!
+    SIGNAL sccb_regConfig3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00001000"; -- reversed order!!!
+
+    -- HSTART HREF start (highest 8 bits)
+    SIGNAL sccb_regAddress4_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "11101000"; -- reversed order!!!
+    SIGNAL sccb_regConfig4_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10001000"; -- reversed order!!!
+
+    -- HSTOP HREF stop (highest 8 bits)
+    SIGNAL sccb_regAddress5_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00011000"; -- reversed order!!!
+    SIGNAL sccb_regConfig5_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10000110"; -- reversed order!!
+
+    -- -- HREF Offset and lowest 3 bits for HSTART and HSTOP
+    SIGNAL sccb_regAddress6_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01001100"; -- reversed order!!!
+    SIGNAL sccb_regConfig6_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00100101"; -- reversed order!!!
 
     -- data 2 [COM10] Register h15, config data: h40, config data:  HSYNCH/VSYNCH Polarity (active low), use HSYNCH instead of HREF
-    SIGNAL sccb_regAddress2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10101000"; -- reversed order!!!
-    SIGNAL sccb_regConfig2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01000011"; -- reversed order!!!
+    SIGNAL sccb_regAddress7_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10101000"; -- reversed order!!!
+    SIGNAL sccb_regConfig7_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01000011"; -- reversed order!!!
 
     SIGNAL sccb_data_r : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL sccb_startWrite_r : STD_LOGIC;
@@ -88,9 +107,8 @@ ARCHITECTURE Behavioral OF top_final_project IS
             clk : IN STD_LOGIC;
             probe0 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
             probe1 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-            probe2 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-            probe3 : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-            probe4 : IN STD_LOGIC_VECTOR(0 DOWNTO 0)
+            probe2 : IN STD_LOGIC_VECTOR(7 DOWNTO 0)
+
         );
     END COMPONENT;
 
@@ -99,6 +117,7 @@ ARCHITECTURE Behavioral OF top_final_project IS
             cam_pclk_i : IN STD_LOGIC;
             rst_i : IN STD_LOGIC;
             cam_href_i : IN STD_LOGIC;
+            cam_vsynch_i : IN STD_LOGIC;
             cam_d_i : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
             vga_d_o : OUT STD_LOGIC_VECTOR(11 DOWNTO 0);
             Hsync_o : OUT STD_LOGIC;
@@ -179,6 +198,21 @@ BEGIN
             WHEN "0000000000000010" =>
             sccb_data_r <= sccb_regConfig2_r & sccb_regAddress2_r;
 
+            WHEN "0000000000000011" =>
+            sccb_data_r <= sccb_regConfig3_r & sccb_regAddress3_r;
+
+            WHEN "0000000000000100" =>
+            sccb_data_r <= sccb_regConfig4_r & sccb_regAddress4_r;
+
+            WHEN "0000000000000101" =>
+            sccb_data_r <= sccb_regConfig5_r & sccb_regAddress5_r;
+
+            WHEN "0000000000000110" =>
+            sccb_data_r <= sccb_regConfig6_r & sccb_regAddress6_r;
+
+            WHEN "0000000000000111" =>
+            sccb_data_r <= sccb_regConfig7_r & sccb_regAddress7_r;
+
             WHEN OTHERS =>
             sccb_data_r <= sccb_regConfig_r & sccb_regAddress_r;
 
@@ -223,10 +257,8 @@ BEGIN
     PORT MAP(
         clk => clk_100MHz_i,
         probe0 => (0 => cam_pclk_i),
-        probe1 => (0 => cam_vsync_i),
-        probe2 => (0 => cam_href_i),
-        probe3 => cam_d_i,
-        probe4 => (0 => rst_n_i)
+        probe1 => (0 => cam_href_i),
+        probe2 => cam_d_i
     );
 
     ----------------------------------------------------------------------------
@@ -237,6 +269,7 @@ BEGIN
             cam_pclk_i => cam_pclk_i,
             rst_i => rst_n_i,
             cam_href_i => cam_href_i,
+            cam_vsynch_i => cam_vsync_i,
             cam_d_i => cam_d_i,
             vga_d_o => vga_o,
             Hsync_o => vga_hsync,

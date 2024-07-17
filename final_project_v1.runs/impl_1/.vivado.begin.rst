@@ -1,60 +1,10 @@
 <?xml version="1.0"?>
 <ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="15908" HostCore="8" HostMemory="034096697344">
+    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="8736" HostCore="8" HostMemory="034096697344">
     </Process>
 </ProcessHandle>
 <?xml version="1.0"?>
 <ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="5924" HostCore="8" HostMemory="034096697344">
-    </Process>
-</ProcessHandle>
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="14160" HostCore="8" HostMemory="034096697344">
-    </Process>
-</ProcessHandle>
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="10096" HostCore="8" HostMemory="034096697344">
-    </Process>
-</ProcessHandle>
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="14648" HostCore="8" HostMemory="034096697344">
-    </Process>
-</ProcessHandle>
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="5468" HostCore="8" HostMemory="034096697344">
-    </Process>
-</ProcessHandle>
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="1896" HostCore="8" HostMemory="034096697344">
-    </Process>
-</ProcessHandle>
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="15664" HostCore="8" HostMemory="034096697344">
-    </Process>
-</ProcessHandle>
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="8952" HostCore="8" HostMemory="034096697344">
-    </Process>
-</ProcessHandle>
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="7920" HostCore="8" HostMemory="034096697344">
-    </Process>
-</ProcessHandle>
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="10532" HostCore="8" HostMemory="034096697344">
-    </Process>
-</ProcessHandle>
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="12252" HostCore="8" HostMemory="034096697344">
+    <Process Command="vivado.bat" Owner="hensl" Host="ORCADRON" Pid="12432" HostCore="8" HostMemory="034096697344">
     </Process>
 </ProcessHandle>

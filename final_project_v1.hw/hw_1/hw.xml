@@ -21,7 +21,7 @@
     </Object>
   </ObjectList>
   <ObjectList object_type="hw_probe" gui_info="">
-    <Object name="cam_d_i_IBUF[7:0]" gui_info="Trigger Setup=2"/>
+    <Object name="cam_d_i_IBUF[7:0]" gui_info="Trigger Setup=1"/>
     <Object name="cam_href_i_IBUF" gui_info="Trigger Setup=0"/>
     <Object name="cam_pclk_i_IBUF" gui_info="Trigger Setup=2"/>
     <Object name="cam_vsync_i_IBUF" gui_info="Trigger Setup=1"/>
@@ -38,7 +38,7 @@
         <Option Id="DISPLAY_VISIBILITY" value=""/>
         <Option Id="HW_ILA" value="hw_ila_1"/>
         <Option Id="LINK_TO_WAVEFORM" value="1"/>
-        <Option Id="MAP" value="probe3[7:0]"/>
+        <Option Id="MAP" value="probe2[7:0]"/>
         <Option Id="NAME.CUSTOM" value=""/>
         <Option Id="NAME.SELECT" value="Long"/>
         <Option Id="SOURCE" value="netlist"/>
@@ -66,7 +66,7 @@
         <Option Id="DISPLAY_VISIBILITY" value=""/>
         <Option Id="HW_ILA" value="hw_ila_1"/>
         <Option Id="LINK_TO_WAVEFORM" value="1"/>
-        <Option Id="MAP" value="probe2[0]"/>
+        <Option Id="MAP" value="probe1[0]"/>
         <Option Id="NAME.CUSTOM" value=""/>
         <Option Id="NAME.SELECT" value="Long"/>
         <Option Id="SOURCE" value="netlist"/>
