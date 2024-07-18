@@ -129,7 +129,7 @@ BEGIN
     BEGIN
         IF hpixel_count < 640 AND vpixel_count < 480 THEN -- Check if display area is active
             rd_addr_vga <= STD_LOGIC_VECTOR(to_unsigned(vpixel_count * 320 + (hpixel_count / 2), 18)); -- Calculate adress in framebuffer
-            vga_d_o <= rd_d_vga(3 DOWNTO 0) & rd_d_vga(7 DOWNTO 6) & "00" & rd_d_vga(5 DOWNTO 4) & "00"; -- Output pixel value
+            vga_d_o <= rd_d_vga(7 DOWNTO 4) & "00" & rd_d_vga(1 DOWNTO 0) & "00" & rd_d_vga(3 DOWNTO 2); -- Output pixel value GBR
 
         ELSE
             vga_d_o <= (OTHERS => '0');

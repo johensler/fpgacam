@@ -100,18 +100,6 @@ ARCHITECTURE Behavioral OF top_final_project IS
     SIGNAL clk_25MHz_r : STD_LOGIC;
     SIGNAL locked_clk25MHz_r : STD_LOGIC;
 
-    -- Component for logic analyzer
-    COMPONENT ila_cam
-
-        PORT (
-            clk : IN STD_LOGIC;
-            probe0 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-            probe1 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-            probe2 : IN STD_LOGIC_VECTOR(7 DOWNTO 0)
-
-        );
-    END COMPONENT;
-
     COMPONENT vga_buffer IS
         PORT (
             cam_pclk_i : IN STD_LOGIC;
@@ -249,17 +237,6 @@ BEGIN
             cam_reset_o <= '1';
         END IF;
     END PROCESS;
-
-    ----------------------------------------------------------------------------
-    -- INTEGRATGED LOGIC ANALYZER 
-    ----------------------------------------------------------------------------
-    ila_cam_inst : ila_cam
-    PORT MAP(
-        clk => clk_100MHz_i,
-        probe0 => (0 => cam_pclk_i),
-        probe1 => (0 => cam_href_i),
-        probe2 => cam_d_i
-    );
 
     ----------------------------------------------------------------------------
     -- VGA Framebuffer, stores input data from camera in BRAM and outputs VGA to display
