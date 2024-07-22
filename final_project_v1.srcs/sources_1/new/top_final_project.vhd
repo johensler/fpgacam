@@ -39,7 +39,9 @@ ENTITY top_final_project IS
         cam_siod_io : INOUT STD_LOGIC;
         vga_hsync : OUT STD_LOGIC;
         vga_vsync : OUT STD_LOGIC;
-        vga_o : OUT STD_LOGIC_VECTOR(11 DOWNTO 0);
+        vga_red : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+        vga_blue : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+        vga_green : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
         sccb_ack_err_o : OUT STD_LOGIC;
         sccb_ack_error_latch_o : OUT STD_LOGIC;
         btnU_n_i : IN STD_LOGIC; -- button up!
@@ -70,7 +72,7 @@ ARCHITECTURE Behavioral OF top_final_project IS
 
     -- RGB444 Set to disable (needed for RGB565 activation)
     SIGNAL sccb_regAddress2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00110001"; -- reversed order!!!
-    SIGNAL sccb_regConfig2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000000"; -- reversed order!!!
+    SIGNAL sccb_regConfig2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01000000"; -- reversed order!!!
 
     -- COM15 Set RGB 565 format 
     SIGNAL sccb_regAddress3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000010"; -- reversed order!!!
@@ -107,7 +109,10 @@ ARCHITECTURE Behavioral OF top_final_project IS
             cam_href_i : IN STD_LOGIC;
             cam_vsynch_i : IN STD_LOGIC;
             cam_d_i : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-            vga_d_o : OUT STD_LOGIC_VECTOR(11 DOWNTO 0);
+            sw_i : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            vga_red : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+            vga_blue : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+            vga_green : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
             Hsync_o : OUT STD_LOGIC;
             Vsync_o : OUT STD_LOGIC
         );
@@ -248,7 +253,10 @@ BEGIN
             cam_href_i => cam_href_i,
             cam_vsynch_i => cam_vsync_i,
             cam_d_i => cam_d_i,
-            vga_d_o => vga_o,
+            sw_i => sw_i,
+            vga_red => vga_red,
+            vga_blue => vga_blue,
+            vga_green => vga_green,
             Hsync_o => vga_hsync,
             Vsync_o => vga_vsync
         );
