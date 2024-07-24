@@ -22,12 +22,11 @@ ARCHITECTURE Behavioral OF vga_buffer IS
 
     -- Signals for VGA receiver of camera
     SIGNAL wr_en_cam : STD_LOGIC := '0'; -- Write enable for camera input data
-    SIGNAL wr_addr_cam : STD_LOGIC_VECTOR(17 DOWNTO 0) := (OTHERS => '0'); -- 18 bit write adress for camera input data (changes every second pixel)
-    SIGNAL d_received : STD_LOGIC_VECTOR(8 DOWNTO 0) := (OTHERS => '0'); -- Received 8-bit pixel value
-    SIGNAL d_buffer : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0'); -- Data buffer to combine the two bytes that are send seperately
-    SIGNAL full_addr : STD_LOGIC_VECTOR(18 DOWNTO 0) := (OTHERS => '0'); -- 19 bit adress, that changes for every pixel read
-    SIGNAL full_addr_next : STD_LOGIC_VECTOR(18 DOWNTO 0) := (OTHERS => '0'); -- Next 19 bit adress
-    SIGNAL wr_en_hold : STD_LOGIC_VECTOR(1 DOWNTO 0) := (OTHERS => '0'); -- Write enable holding (keep track of when in the cycle to activate write enable)
+    SIGNAL wr_addr_cam : STD_LOGIC_VECTOR(17 DOWNTO 0); -- 18 bit write adress for camera input data (changes every second pixel)
+    SIGNAL d_received : STD_LOGIC_VECTOR(8 DOWNTO 0); -- Received 8-bit pixel value
+    SIGNAL d_buffer : STD_LOGIC_VECTOR(15 DOWNTO 0); -- Data buffer to combine the two bytes that are send seperately
+    SIGNAL full_addr : STD_LOGIC_VECTOR(18 DOWNTO 0); -- 19 bit adress, that changes for every pixel read
+    SIGNAL full_addr_next : STD_LOGIC_VECTOR(18 DOWNTO 0); -- Next 19 bit adress
 
     --Signals for VGA output driver
     SIGNAL clk_lines : STD_LOGIC; -- line clock for vsynch
@@ -108,21 +107,21 @@ BEGIN
     PROCESS (cam_pclk_i)
     BEGIN
         IF rising_edge(cam_pclk_i) THEN
-            IF cam_vsynch_i = '1' THEN -- check if frame is over, if true reset the addr and write hold signal
-                wr_en_hold <= (OTHERS => '0');
+            IF cam_vsynch_i = '1' THEN -- check if frame is over, if true reset the addr and write enable
+                wr_en_cam <= '0';
                 full_addr <= (OTHERS => '0');
                 full_addr_next <= (OTHERS => '0');
             ELSE
+                IF wr_en_cam = '1' THEN -- If writing was enabled in this cycle: Go to next adress in frame buffer
+                    full_addr_next <= STD_LOGIC_VECTOR(unsigned(full_addr_next) + 1);
+                END IF;
+
                 full_addr <= full_addr_next; -- Increment adress
-                wr_en_cam <= wr_en_hold(1); -- Set wr_enable signal to true or false, depending on the current cycle. (Save every second pixel)
-                wr_en_hold <= wr_en_hold(0) & (cam_href_i AND NOT wr_en_hold(0)); -- Update the wr_en_hold: Move lsb to msb and put lsb to 1 if we are still in the frame and the prev. cycle had no wr_en -> every second cycle wr_en is active
+                wr_en_cam <= cam_href_i AND NOT wr_en_cam; -- Set wr_enable signal to true or false, depending on the current cycle. (Save every second pixel)
 
                 d_buffer <= d_buffer(7 DOWNTO 0) & cam_d_i; -- Store incoming data in lower 8 bits and move old lower 8 bits into higher 8 bits
                 d_received <= d_buffer(11 DOWNTO 9) & d_buffer(7 DOWNTO 5) & d_buffer(3 DOWNTO 1); -- for 8 bit (GRB altough the datasheet says RGB)
 
-                IF wr_en_hold(1) = '1' THEN -- If writing was enabled in this cycle: Go to next adress in frame buffer
-                    full_addr_next <= STD_LOGIC_VECTOR(unsigned(full_addr_next) + 1);
-                END IF;
             END IF;
         END IF;
     END PROCESS;
