@@ -15,7 +15,12 @@ ARCHITECTURE behavior OF tb_vga_buffer IS
             cam_href_i : IN STD_LOGIC;
             cam_vsynch_i : IN STD_LOGIC;
             cam_d_i : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-            vga_d_o : OUT STD_LOGIC_VECTOR(11 DOWNTO 0)
+            sw_i : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            vga_red : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+            vga_blue : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+            vga_green : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+            Hsync_o : OUT STD_LOGIC;
+            Vsync_o : OUT STD_LOGIC
         );
     END COMPONENT;
 
@@ -25,7 +30,12 @@ ARCHITECTURE behavior OF tb_vga_buffer IS
     SIGNAL cam_href_i : STD_LOGIC := '0';
     SIGNAL cam_vsynch_i : STD_LOGIC := '0';
     SIGNAL cam_d_i : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
-    SIGNAL vga_d_o : STD_LOGIC_VECTOR(11 DOWNTO 0);
+    SIGNAL vga_red : STD_LOGIC_VECTOR(3 DOWNTO 0);
+    SIGNAL vga_green : STD_LOGIC_VECTOR(3 DOWNTO 0);
+    SIGNAL vga_blue : STD_LOGIC_VECTOR(3 DOWNTO 0);
+    SIGNAL sw_i : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL Hsync_o : STD_LOGIC;
+    SIGNAL Vsync_o : STD_LOGIC;
 
     -- Clock period definitions
     CONSTANT clk_period : TIME := 40 ns;
@@ -36,10 +46,15 @@ BEGIN
     uut : vga_buffer PORT MAP(
         cam_pclk_i => cam_pclk_i,
         rst_i => rst_i,
+        sw_i => sw_i,
         cam_href_i => cam_href_i,
         cam_vsynch_i => cam_vsynch_i,
         cam_d_i => cam_d_i,
-        vga_d_o => vga_d_o
+        vga_red => vga_red,
+        vga_green => vga_green,
+        vga_blue => vga_blue,
+        Hsync_o => Hsync_o,
+        Vsync_o => Vsync_o
     );
 
     -- Clock process definitions
@@ -92,7 +107,7 @@ BEGIN
 
         frame_loop2 : WHILE unsigned(line_count) < 480 LOOP
             cam_href_i <= '1'; -- Start a displaying a line
-            line_loop2 : WHILE unsigned(count) < 640 LOOP
+            line_loop2 : WHILE unsigned(count) < 1280 LOOP
 
                 cam_d_i <= "10101010"; -- some mock data
                 WAIT FOR clk_period;

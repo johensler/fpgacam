@@ -107,8 +107,12 @@ BEGIN
     PROCESS (cam_pclk_i)
     BEGIN
         IF rising_edge(cam_pclk_i) THEN
-            IF cam_vsynch_i = '1' THEN -- check if frame is over, if true reset the addr and write enable
-                wr_en_cam <= '0';
+            IF rst_i = '1' THEN
+                wr_en_cam <= '1';-- Reset to 1 as then the next pclk will set it to 0 to read the first byte of the first pixel
+                full_addr <= (OTHERS => '0');
+                full_addr_next <= (OTHERS => '0');
+            ELSIF cam_vsynch_i = '1' THEN -- check if frame is over, if true reset the addr and write enable
+                wr_en_cam <= '1'; -- Reset to 1 as then the next pclk will set it to 0 to read the first byte of the first pixel
                 full_addr <= (OTHERS => '0');
                 full_addr_next <= (OTHERS => '0');
             ELSE
@@ -120,12 +124,11 @@ BEGIN
                 wr_en_cam <= cam_href_i AND NOT wr_en_cam; -- Set wr_enable signal to true or false, depending on the current cycle. (Save every second pixel)
 
                 d_buffer <= d_buffer(7 DOWNTO 0) & cam_d_i; -- Store incoming data in lower 8 bits and move old lower 8 bits into higher 8 bits
-                d_received <= d_buffer(11 DOWNTO 9) & d_buffer(7 DOWNTO 5) & d_buffer(3 DOWNTO 1); -- for 8 bit (GRB altough the datasheet says RGB)
+                d_received <= d_buffer(15 DOWNTO 13) & d_buffer(11 DOWNTO 9) & d_buffer(7 DOWNTO 5); -- Format of d_received = Red(8 DOWNTO 6) Green(5 DOWNTO 3) Blue(2 DOWNTO 0)
 
             END IF;
         END IF;
     END PROCESS;
-
     --VGA OUTPUT
     output_process : PROCESS (cam_pclk_i)
     BEGIN

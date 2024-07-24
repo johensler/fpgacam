@@ -70,11 +70,11 @@ ARCHITECTURE Behavioral OF top_final_project IS
     SIGNAL sccb_regAddress1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01001000"; -- reversed order!!!
     SIGNAL sccb_regConfig1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00100000"; -- reversed order!!!
 
-    -- RGB444 Set to disable (needed for RGB565 activation)
+    -- RGB444 Set to enable
     SIGNAL sccb_regAddress2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00110001"; -- reversed order!!!
     SIGNAL sccb_regConfig2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01000000"; -- reversed order!!!
 
-    -- COM15 Set RGB 565 format 
+    -- COM15 Set RGB 444 format 
     SIGNAL sccb_regAddress3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000010"; -- reversed order!!!
     SIGNAL sccb_regConfig3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00001000"; -- reversed order!!!
 
