@@ -7,10 +7,10 @@ ENTITY dual_port_ram IS
     PORT (
         clk : IN STD_LOGIC;
         we_a : IN STD_LOGIC; -- Write enable for port A
-        addr_a : IN STD_LOGIC_VECTOR(17 DOWNTO 0); -- Address for port A
+        addr_a : IN STD_LOGIC_VECTOR(16 DOWNTO 0); -- Address for port A
         data_in_a : IN STD_LOGIC_VECTOR(8 DOWNTO 0); -- Data input for port A
 
-        addr_b : IN STD_LOGIC_VECTOR(17 DOWNTO 0); -- Address for port B
+        addr_b : IN STD_LOGIC_VECTOR(16 DOWNTO 0); -- Address for port B
         data_out_b : OUT STD_LOGIC_VECTOR(8 DOWNTO 0) -- Data output for port B
     );
 END dual_port_ram;

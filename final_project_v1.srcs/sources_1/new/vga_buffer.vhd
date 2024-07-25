@@ -22,7 +22,7 @@ ARCHITECTURE Behavioral OF vga_buffer IS
 
     -- Signals for VGA receiver of camera
     SIGNAL wr_en_cam : STD_LOGIC := '0'; -- Write enable for camera input data
-    SIGNAL wr_addr_cam : STD_LOGIC_VECTOR(17 DOWNTO 0); -- 18 bit write adress for camera input data (changes every second pixel)
+    SIGNAL wr_addr_cam : STD_LOGIC_VECTOR(16 DOWNTO 0); -- 18 bit write adress for camera input data (changes every second pixel)
     SIGNAL d_received : STD_LOGIC_VECTOR(8 DOWNTO 0); -- Received 8-bit pixel value
     SIGNAL d_buffer : STD_LOGIC_VECTOR(15 DOWNTO 0); -- Data buffer to combine the two bytes that are send seperately
     SIGNAL full_addr : STD_LOGIC_VECTOR(18 DOWNTO 0); -- 19 bit adress, that changes for every pixel read
@@ -34,7 +34,7 @@ ARCHITECTURE Behavioral OF vga_buffer IS
     SIGNAL vdisplay : STD_LOGIC; -- active low for vertical display
     SIGNAL hpixel_count : INTEGER; -- Index of current hozizontal pixel
     SIGNAL vpixel_count : INTEGER; -- Index of current vertival pixel
-    SIGNAL rd_addr_vga : STD_LOGIC_VECTOR(17 DOWNTO 0) := (OTHERS => '0'); -- Adress for reading a pixel value
+    SIGNAL rd_addr_vga : STD_LOGIC_VECTOR(16 DOWNTO 0) := (OTHERS => '0'); -- Adress for reading a pixel value
     SIGNAL rd_d_vga : STD_LOGIC_VECTOR(8 DOWNTO 0); -- Read data from frame buffer
 
     -- VGA hsynch and vsynch signals
@@ -102,17 +102,17 @@ BEGIN
     -- In the first cycle d_buffer loads the first 8bit and in the next cycle the second 8bit are read. 
     -- Then the write enable will be set to true and the data is stored in the frame buffer.
 
-    wr_addr_cam <= full_addr(18 DOWNTO 1); -- wr_addr leaves out lsb to only save every second pixel
+    wr_addr_cam <= full_addr(18 DOWNTO 2); -- wr_addr leaves out lsb to only save every second pixel
 
     PROCESS (cam_pclk_i)
     BEGIN
         IF rising_edge(cam_pclk_i) THEN
             IF rst_i = '1' THEN
-                wr_en_cam <= '1';-- Reset to 1 as then the next pclk will set it to 0 to read the first byte of the first pixel
+                wr_en_cam <= '1';-- Reset to 1 so first byte is not written
                 full_addr <= (OTHERS => '0');
                 full_addr_next <= (OTHERS => '0');
             ELSIF cam_vsynch_i = '1' THEN -- check if frame is over, if true reset the addr and write enable
-                wr_en_cam <= '1'; -- Reset to 1 as then the next pclk will set it to 0 to read the first byte of the first pixel
+                wr_en_cam <= '1'; -- Reset to 1 so first byte is not written
                 full_addr <= (OTHERS => '0');
                 full_addr_next <= (OTHERS => '0');
             ELSE
@@ -124,7 +124,7 @@ BEGIN
                 wr_en_cam <= cam_href_i AND NOT wr_en_cam; -- Set wr_enable signal to true or false, depending on the current cycle. (Save every second pixel)
 
                 d_buffer <= d_buffer(7 DOWNTO 0) & cam_d_i; -- Store incoming data in lower 8 bits and move old lower 8 bits into higher 8 bits
-                d_received <= d_buffer(15 DOWNTO 13) & d_buffer(11 DOWNTO 9) & d_buffer(7 DOWNTO 5); -- Format of d_received = Red(8 DOWNTO 6) Green(5 DOWNTO 3) Blue(2 DOWNTO 0)
+                d_received <= d_buffer(11 DOWNTO 9) & d_buffer(7 DOWNTO 5) & d_buffer(3 DOWNTO 1); -- Format of d_received = Red(8 DOWNTO 6) Green(5 DOWNTO 3) Blue(2 DOWNTO 0)
 
             END IF;
         END IF;
@@ -133,10 +133,9 @@ BEGIN
     output_process : PROCESS (cam_pclk_i)
     BEGIN
         IF hpixel_count < 640 AND vpixel_count < 480 THEN -- Check if display area is active
-            rd_addr_vga <= STD_LOGIC_VECTOR(to_unsigned(vpixel_count * 320 + (hpixel_count / 2), 18)); -- Calculate adress in framebuffer
+            rd_addr_vga <= STD_LOGIC_VECTOR(to_unsigned(vpixel_count * 160 + (hpixel_count / 4), 17)); -- Calculate adress in framebuffer
             vga_red <= "0" & rd_d_vga(8 DOWNTO 6);
             vga_green <= "0" & rd_d_vga(5 DOWNTO 3);
-            vga_blue <= "0" & rd_d_vga(2 DOWNTO 0);
 
         ELSE
             vga_red <= (OTHERS => '0');
