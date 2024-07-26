@@ -34,7 +34,7 @@ ARCHITECTURE Behavioral OF vga_buffer IS
     SIGNAL vdisplay : STD_LOGIC; -- active low for vertical display
     SIGNAL hpixel_count : INTEGER; -- Index of current hozizontal pixel
     SIGNAL vpixel_count : INTEGER; -- Index of current vertival pixel
-    SIGNAL rd_addr_vga : STD_LOGIC_VECTOR(17 DOWNTO 0) := (OTHERS => '0'); -- Adress for reading a pixel value
+    SIGNAL rd_addr_vga : STD_LOGIC_VECTOR(17 DOWNTO 0) := (OTHERS => '0'); -- Address for reading a pixel value
     SIGNAL rd_d_vga : STD_LOGIC_VECTOR(8 DOWNTO 0); -- Read data from frame buffer
 
     -- VGA hsynch and vsynch signals
@@ -95,7 +95,7 @@ BEGIN
         vpixel_count_out => vpixel_count
     );
     ----------------------------------------------------------------------------
-    -- ´Processes
+    -- Processes
     ----------------------------------------------------------------------------
     -- Receiver camera data and save it to frame buffer
     -- Data is send in 2 cycles. Two byte are send for each pixel. 
@@ -103,7 +103,7 @@ BEGIN
     -- Then the write enable will be set to true and the data is stored in the frame buffer.
 
     wr_addr_cam <= full_addr(18 DOWNTO 1); -- wr_addr leaves out lsb to only save every second pixel
-
+    -- Camera receiver
     PROCESS (cam_pclk_i)
     BEGIN
         IF rising_edge(cam_pclk_i) THEN
@@ -124,12 +124,13 @@ BEGIN
                 wr_en_cam <= cam_href_i AND NOT wr_en_cam; -- Set wr_enable signal to true or false, depending on the current cycle. (Save every second pixel)
 
                 d_buffer <= d_buffer(7 DOWNTO 0) & cam_d_i; -- Store incoming data in lower 8 bits and move old lower 8 bits into higher 8 bits
-                d_received <= d_buffer(15 DOWNTO 13) & d_buffer(11 DOWNTO 9) & d_buffer(7 DOWNTO 5); -- Format of d_received = Red(8 DOWNTO 6) Green(5 DOWNTO 3) Blue(2 DOWNTO 0)
+                d_received <= d_buffer(11 DOWNTO 9) & d_buffer(7 DOWNTO 5) & d_buffer(3 DOWNTO 1); -- Select the bits of interest in the RGB444 format and store them
 
             END IF;
         END IF;
     END PROCESS;
-    --VGA OUTPUT
+
+    --VGA output
     output_process : PROCESS (cam_pclk_i)
     BEGIN
         IF hpixel_count < 640 AND vpixel_count < 480 THEN -- Check if display area is active

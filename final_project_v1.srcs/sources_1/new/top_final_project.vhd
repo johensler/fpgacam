@@ -1,23 +1,8 @@
---------------------------------------------------------------------------------
--- whole project as async design, use this process as example
--- process_name : process(clk_i, rst_n_i)
--- begin
---    if (rst_n_i = '1') then
---         -- reset all output signals of process
---         all_signals <= (others => '0');
---     elsif rising_edge(clk_i) then
---         -- do something clocked
---     end if;
--- end process process_name;
---------------------------------------------------------------------------------
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 LIBRARY UNISIM;
 USE UNISIM.vcomponents.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -66,33 +51,21 @@ ARCHITECTURE Behavioral OF top_final_project IS
     SIGNAL sccb_regAddress_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01001000"; -- reversed order!!!
     SIGNAL sccb_regConfig_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000001"; -- reversed order!!!
 
-    -- COM7 Set RGB Output Format
+    -- COM7 Set Output format to RGB (instead of YUV, which is default)
     SIGNAL sccb_regAddress1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01001000"; -- reversed order!!!
     SIGNAL sccb_regConfig1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00100000"; -- reversed order!!!
 
-    -- RGB444 Set to enable
+    -- RGB444 Enable the RGB44 output format (only valid with the lower command)
     SIGNAL sccb_regAddress2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00110001"; -- reversed order!!!
     SIGNAL sccb_regConfig2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01000000"; -- reversed order!!!
 
-    -- COM15 Set RGB 444 format 
+    -- COM15 Set RGB 444 format (only valid with upper command) and output range to [00] to [FF]
     SIGNAL sccb_regAddress3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000010"; -- reversed order!!!
-    SIGNAL sccb_regConfig3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00001000"; -- reversed order!!!
+    SIGNAL sccb_regConfig3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00001011"; -- reversed order!!!
 
-    -- HSTART HREF start (highest 8 bits)
-    SIGNAL sccb_regAddress4_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "11101000"; -- reversed order!!!
-    SIGNAL sccb_regConfig4_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10001000"; -- reversed order!!!
-
-    -- HSTOP HREF stop (highest 8 bits)
-    SIGNAL sccb_regAddress5_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00011000"; -- reversed order!!!
-    SIGNAL sccb_regConfig5_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10000110"; -- reversed order!!
-
-    -- -- HREF Offset and lowest 3 bits for HSTART and HSTOP
-    SIGNAL sccb_regAddress6_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01001100"; -- reversed order!!!
-    SIGNAL sccb_regConfig6_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00100101"; -- reversed order!!!
-
-    -- data 2 [COM10] Register h15, config data: h40, config data:  HSYNCH/VSYNCH Polarity (active low), use HSYNCH instead of HREF
-    SIGNAL sccb_regAddress7_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10101000"; -- reversed order!!!
-    SIGNAL sccb_regConfig7_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01000011"; -- reversed order!!!
+    -- COM7 Set Output format to RGB (instead of YUV, which is default) + debug color bars
+    SIGNAL sccb_regAddress4_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01001000"; -- reversed order!!!
+    SIGNAL sccb_regConfig4_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01100000"; -- reversed order!!!
 
     SIGNAL sccb_data_r : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL sccb_startWrite_r : STD_LOGIC;
@@ -197,15 +170,6 @@ BEGIN
             WHEN "0000000000000100" =>
             sccb_data_r <= sccb_regConfig4_r & sccb_regAddress4_r;
 
-            WHEN "0000000000000101" =>
-            sccb_data_r <= sccb_regConfig5_r & sccb_regAddress5_r;
-
-            WHEN "0000000000000110" =>
-            sccb_data_r <= sccb_regConfig6_r & sccb_regAddress6_r;
-
-            WHEN "0000000000000111" =>
-            sccb_data_r <= sccb_regConfig7_r & sccb_regAddress7_r;
-
             WHEN OTHERS =>
             sccb_data_r <= sccb_regConfig_r & sccb_regAddress_r;
 
@@ -225,9 +189,6 @@ BEGIN
             sda_i => siod_o_r,
             start_fsm_debug_o => start_fsm_debug_o
         );
-
-    -- TODO(MaBa): Muss ich Daten einsyncen?
-    -- TODO(MaBa): Add ROM with config data
     debug_o <= '0';
 
     ----------------------------------------------------------------------------
