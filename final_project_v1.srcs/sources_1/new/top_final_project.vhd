@@ -14,10 +14,7 @@ LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 LIBRARY UNISIM;
 USE UNISIM.vcomponents.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -68,7 +65,7 @@ ARCHITECTURE Behavioral OF top_final_project IS
 
     -- COM7 Set RGB Output Format
     SIGNAL sccb_regAddress1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01001000"; -- reversed order!!!
-    SIGNAL sccb_regConfig1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00100000"; -- reversed order!!!
+    SIGNAL sccb_regConfig1_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01100000"; -- reversed order!!!
 
     -- RGB444 Set to enable
     SIGNAL sccb_regAddress2_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00110001"; -- reversed order!!!
@@ -76,15 +73,15 @@ ARCHITECTURE Behavioral OF top_final_project IS
 
     -- COM15 Set RGB 444 format 
     SIGNAL sccb_regAddress3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000010"; -- reversed order!!!
-    SIGNAL sccb_regConfig3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00001000"; -- reversed order!!!
+    SIGNAL sccb_regConfig3_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00001011"; -- reversed order!!!
 
-    -- HSTART HREF start (highest 8 bits)
-    SIGNAL sccb_regAddress4_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "11101000"; -- reversed order!!!
-    SIGNAL sccb_regConfig4_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10001000"; -- reversed order!!!
+    -- SCALING_XSC Set 8-bar color bar
+    SIGNAL sccb_regAddress4_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00001110"; -- reversed order!!!
+    SIGNAL sccb_regConfig4_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000001"; -- reversed order!!!
 
-    -- HSTOP HREF stop (highest 8 bits)
-    SIGNAL sccb_regAddress5_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00011000"; -- reversed order!!!
-    SIGNAL sccb_regConfig5_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10000110"; -- reversed order!!
+    -- SCALING_ySC Set 8-bar color bar
+    SIGNAL sccb_regAddress5_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10001110"; -- reversed order!!!
+    SIGNAL sccb_regConfig5_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "10110101"; -- reversed order!!!
 
     -- -- HREF Offset and lowest 3 bits for HSTART and HSTOP
     SIGNAL sccb_regAddress6_r : STD_LOGIC_VECTOR(7 DOWNTO 0) := "01001100"; -- reversed order!!!
@@ -101,6 +98,13 @@ ARCHITECTURE Behavioral OF top_final_project IS
     -- END   ------ debug -> generate repeated start signal for i2c tb ---------
     SIGNAL clk_25MHz_r : STD_LOGIC;
     SIGNAL locked_clk25MHz_r : STD_LOGIC;
+
+    SIGNAL startup_delay_finished : STD_LOGIC;
+    SIGNAL reset_startup_delay : STD_LOGIC;
+    SIGNAL startup_delay_count : INTEGER := 0;
+    SIGNAL i2c_cycle_count : INTEGER := 0;
+    SIGNAL i2c_config_address_counter : unsigned(2 DOWNTO 0) := "000";
+    SIGNAL i2c_start_write_r : STD_LOGIC;
 
     COMPONENT vga_buffer IS
         PORT (
@@ -177,40 +181,107 @@ BEGIN
     -- make sure last led (num 15) wont light up, otherwise communication went 
     -- wrong
     ----------------------------------------------------------------------------
-    dataSelection_comb_proc : PROCESS (sw_i)
+    --Manual register control
+    -- dataSelection_comb_proc : PROCESS (sw_i)
+    -- BEGIN
+
+    --     CASE(sw_i) IS
+
+    --         WHEN "0000000000000000" =>
+    --         sccb_data_r <= sccb_regConfig_r & sccb_regAddress_r;
+
+    --         WHEN "0000000000000001" =>
+    --         sccb_data_r <= sccb_regConfig1_r & sccb_regAddress1_r;
+
+    --         WHEN "0000000000000010" =>
+    --         sccb_data_r <= sccb_regConfig2_r & sccb_regAddress2_r;
+
+    --         WHEN "0000000000000011" =>
+    --         sccb_data_r <= sccb_regConfig3_r & sccb_regAddress3_r;
+
+    --         WHEN "0000000000000100" =>
+    --         sccb_data_r <= sccb_regConfig4_r & sccb_regAddress4_r;
+
+    --         WHEN "0000000000000101" =>
+    --         sccb_data_r <= sccb_regConfig5_r & sccb_regAddress5_r;
+
+    --         WHEN "0000000000000110" =>
+    --         sccb_data_r <= sccb_regConfig6_r & sccb_regAddress6_r;
+
+    --         WHEN "0000000000000111" =>
+    --         sccb_data_r <= sccb_regConfig7_r & sccb_regAddress7_r;
+
+    --         WHEN OTHERS =>
+    --         sccb_data_r <= sccb_regConfig_r & sccb_regAddress_r;
+
+    --     END CASE;
+    -- END PROCESS;
+
+    --Automatic register control
+    -- counter for short delay
+    i2c_startup_delay_proc : PROCESS (clk_100MHz_i, rst_n_i)
     BEGIN
+        IF (rst_n_i = '1') THEN
+            -- reset all output signals of process
+            startup_delay_finished <= '0';
+            startup_delay_count <= 0;
+        ELSIF (reset_startup_delay = '1') THEN
+            startup_delay_finished <= '0';
+        ELSIF rising_edge(clk_100MHz_i) THEN
+            IF startup_delay_count < 1000000 THEN
+                -- increment count    
+                startup_delay_count <= startup_delay_count + 1;
+                startup_delay_finished <= '0';
+            ELSE
+                startup_delay_finished <= '1';
+                --startup_delay_count <= 0;
+            END IF;
+        END IF;
+    END PROCESS i2c_startup_delay_proc;
 
-        CASE(sw_i) IS
+    -- counter that generates address for rom and write signals for i2c
+    i2c_config_counter_proc : PROCESS (clk_100MHz_i, rst_n_i)
+    BEGIN
+        IF (rst_n_i = '1') THEN
+            -- reset all output signals of process
+            i2c_config_address_counter <= "000";
+            i2c_start_write_r <= '0';
+            i2c_cycle_count <= 0;
+            debug_o <= '0';
+            reset_startup_delay <= '0';
+        ELSIF rising_edge(clk_100MHz_i) THEN
+            IF startup_delay_finished = '1' THEN
+                debug_o <= '1';
+                IF i2c_cycle_count < 10000 THEN
+                    i2c_start_write_r <= '0';
+                    i2c_cycle_count <= i2c_cycle_count + 1;
+                ELSIF i2c_cycle_count = 10000 THEN
+                    IF i2c_config_address_counter < "100" THEN
+                        i2c_config_address_counter <= i2c_config_address_counter + 1;
+                    ELSE
+                        i2c_config_address_counter <= "000";
+                        reset_startup_delay <= '1';
+                    END IF;
+                    i2c_cycle_count <= i2c_cycle_count + 1;
+                ELSIF i2c_cycle_count < 10260 THEN
+                    i2c_start_write_r <= '1';
+                    i2c_cycle_count <= i2c_cycle_count + 1;
+                ELSE
+                    i2c_cycle_count <= 0;
+                END IF;
+            ELSE
+                i2c_cycle_count <= 0;
+                i2c_start_write_r <= '0';
+            END IF;
+        END IF;
+    END PROCESS i2c_config_counter_proc;
 
-            WHEN "0000000000000000" =>
-            sccb_data_r <= sccb_regConfig_r & sccb_regAddress_r;
-
-            WHEN "0000000000000001" =>
-            sccb_data_r <= sccb_regConfig1_r & sccb_regAddress1_r;
-
-            WHEN "0000000000000010" =>
-            sccb_data_r <= sccb_regConfig2_r & sccb_regAddress2_r;
-
-            WHEN "0000000000000011" =>
-            sccb_data_r <= sccb_regConfig3_r & sccb_regAddress3_r;
-
-            WHEN "0000000000000100" =>
-            sccb_data_r <= sccb_regConfig4_r & sccb_regAddress4_r;
-
-            WHEN "0000000000000101" =>
-            sccb_data_r <= sccb_regConfig5_r & sccb_regAddress5_r;
-
-            WHEN "0000000000000110" =>
-            sccb_data_r <= sccb_regConfig6_r & sccb_regAddress6_r;
-
-            WHEN "0000000000000111" =>
-            sccb_data_r <= sccb_regConfig7_r & sccb_regAddress7_r;
-
-            WHEN OTHERS =>
-            sccb_data_r <= sccb_regConfig_r & sccb_regAddress_r;
-
-        END CASE;
-    END PROCESS;
+    -- inst rom with i2c config data
+    i2c_config_rom_inst : ENTITY work.i2c_config_rom
+        PORT MAP(
+            address_i => STD_LOGIC_VECTOR(i2c_config_address_counter),
+            data_o => sccb_data_r
+        );
 
     i2c_controler_inst : ENTITY work.i2c_controler
         PORT MAP(
@@ -226,8 +297,6 @@ BEGIN
             start_fsm_debug_o => start_fsm_debug_o
         );
 
-    -- TODO(MaBa): Muss ich Daten einsyncen?
-    -- TODO(MaBa): Add ROM with config data
     debug_o <= '0';
 
     ----------------------------------------------------------------------------

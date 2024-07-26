@@ -23,7 +23,7 @@ ARCHITECTURE Behavioral OF vga_buffer IS
     -- Signals for VGA receiver of camera
     SIGNAL wr_en_cam : STD_LOGIC := '0'; -- Write enable for camera input data
     SIGNAL wr_addr_cam : STD_LOGIC_VECTOR(16 DOWNTO 0); -- 18 bit write adress for camera input data (changes every second pixel)
-    SIGNAL d_received : STD_LOGIC_VECTOR(8 DOWNTO 0); -- Received 8-bit pixel value
+    SIGNAL d_received : STD_LOGIC_VECTOR(11 DOWNTO 0); -- Received 8-bit pixel value
     SIGNAL d_buffer : STD_LOGIC_VECTOR(15 DOWNTO 0); -- Data buffer to combine the two bytes that are send seperately
     SIGNAL full_addr : STD_LOGIC_VECTOR(18 DOWNTO 0); -- 19 bit adress, that changes for every pixel read
     SIGNAL full_addr_next : STD_LOGIC_VECTOR(18 DOWNTO 0); -- Next 19 bit adress
@@ -35,7 +35,7 @@ ARCHITECTURE Behavioral OF vga_buffer IS
     SIGNAL hpixel_count : INTEGER; -- Index of current hozizontal pixel
     SIGNAL vpixel_count : INTEGER; -- Index of current vertival pixel
     SIGNAL rd_addr_vga : STD_LOGIC_VECTOR(16 DOWNTO 0) := (OTHERS => '0'); -- Adress for reading a pixel value
-    SIGNAL rd_d_vga : STD_LOGIC_VECTOR(8 DOWNTO 0); -- Read data from frame buffer
+    SIGNAL rd_d_vga : STD_LOGIC_VECTOR(11 DOWNTO 0); -- Read data from frame buffer
 
     -- VGA hsynch and vsynch signals
     COMPONENT hsynch
@@ -123,8 +123,15 @@ BEGIN
                 full_addr <= full_addr_next; -- Increment adress
                 wr_en_cam <= cam_href_i AND NOT wr_en_cam; -- Set wr_enable signal to true or false, depending on the current cycle. (Save every second pixel)
 
-                d_buffer <= d_buffer(7 DOWNTO 0) & cam_d_i; -- Store incoming data in lower 8 bits and move old lower 8 bits into higher 8 bits
-                d_received <= d_buffer(11 DOWNTO 9) & d_buffer(7 DOWNTO 5) & d_buffer(3 DOWNTO 1); -- Format of d_received = Red(8 DOWNTO 6) Green(5 DOWNTO 3) Blue(2 DOWNTO 0)
+                d_buffer <= d_buffer(7 DOWNTO 0) & cam_d_i; -- Store incoming data in lower 8 bits and move old lower 8 bits into higher 8 bits 
+
+                IF sw_i(15 DOWNTO 13) = "000" THEN --444 xRGB
+                    d_received <= d_buffer(11 DOWNTO 8) & d_buffer(7 DOWNTO 4) & d_buffer(3 DOWNTO 0); -- Format of d_received = Red(8 DOWNTO 6) Green(5 DOWNTO 3) Blue(2 DOWNTO 0)
+                ELSIF sw_i(15 DOWNTO 13) = "001" THEN--RGB565
+                    d_received <= d_buffer(15 DOWNTO 12) & d_buffer(10 DOWNTO 7) & d_buffer(4 DOWNTO 1); -- Format of d_received = Red(8 DOWNTO 6) Green(5 DOWNTO 3) Blue(2 DOWNTO 0)
+                ELSIF sw_i(15 DOWNTO 13) = "010" THEN --GRB565
+                    d_received <= d_buffer(10 DOWNTO 7) & d_buffer(15 DOWNTO 12) & d_buffer(4 DOWNTO 1);
+                END IF;
 
             END IF;
         END IF;
@@ -134,8 +141,9 @@ BEGIN
     BEGIN
         IF hpixel_count < 640 AND vpixel_count < 480 THEN -- Check if display area is active
             rd_addr_vga <= STD_LOGIC_VECTOR(to_unsigned(vpixel_count * 160 + (hpixel_count / 4), 17)); -- Calculate adress in framebuffer
-            vga_red <= "0" & rd_d_vga(8 DOWNTO 6);
-            vga_green <= "0" & rd_d_vga(5 DOWNTO 3);
+            vga_red <= rd_d_vga(11 DOWNTO 8);
+            vga_green <= rd_d_vga(7 DOWNTO 4);
+            vga_blue <= rd_d_vga(3 DOWNTO 0);
 
         ELSE
             vga_red <= (OTHERS => '0');
